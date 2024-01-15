@@ -1,0 +1,26 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: "${var.vm_name}"
+    username: "${var.ssh_username}"
+    password: "${var.ssh_password_crypted}"
+  locale: "${var.locale}"
+  keyboard:
+    layout: "${var.keyboard_layout}"
+    variant: "${var.keyboard_variant}"
+  #early-commands:
+    # otherwise packer tries to connect and exceed max attempts:
+  #- systemctl stop ssh
+  ssh:
+    install-server: true
+    allow-pw: true
+  storage:
+    grub:
+      update_nvram: true
+    swap:
+      size: 0
+    layout:
+      name: direct
+  package_update: true
+  package_upgrade: true
