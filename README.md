@@ -24,7 +24,29 @@ ssh -L 5900:localhost:59xx discovery-one-11
 Siendo 59xx el puerto que diga el output de Packer.
 Desde un cliente VNC (como VNC Viewer) me conecto al server con `localhost:5900`
 
-Inspiraciones:
+## Subir imagen a OpenNebula
+Para que la imágen esté disponible en nuestros entornos, hay principalmente [dos opciones](https://docs.opennebula.io/6.6/management_and_operations/storage_management/images.html#creating-images):
+- Subirla a un [marketplace](https://docs.opennebula.io/6.6/marketplace/index.html#marketplaces) y descargarla de ahí en nuestros datastores
+- Subir la imagen desde el frontend.
+```bash
+# Guardar imagen a subir en directorio seguro para el datastore. One es capaz de procesar imagenes con compresión gzip
+scp discovery-one-11:/opt/packer/ubuntu-nginx/ubuntu-nginx-2024-01-10-17-52-29.qcow2.gz  /var/tmp/
+
+oneimage create --datastore 101 --name Ubuntu-Nginx-Packer --path /var/tmp/ubuntu-nginx-2024-01-10-17-52-29.qcow2.gz --prefix vd --description "Unmutable ubuntu-nginx made with Packer"
+# vd para decir que la imagen se monta sobre dispositivo virtio
+
+##### También es posible subir la imágen metiendo los parámetros en un fichero plantilla
+oneimage create ubuntu_img.one --datastore 101
+# Siendo la plantilla:
+cat ubuntu_img.one
+NAME          = "Ubuntu-Nginx-Packer"
+DESCRIPTION   = "Unmutable ubuntu-nginx made with Packer"
+PATH          = "/var/tmp/ubuntu-nginx-2024-01-10-17-52-29.qcow2.gz"
+DEV_PREFIX    = "vd"
+```
+
+## Inspiraciones
+
 - https://github.com/dklischies/Packer-Ghidra-Server-OpenNebula/tree/master
 - https://github.com/canonical/packer-maas/tree/15cd61d6e5c098171e472deacbee6915c9b92fca/ubuntu
 - https://github.com/tylert/packer-build/tree/master/source
